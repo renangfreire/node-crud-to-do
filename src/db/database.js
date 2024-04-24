@@ -1,12 +1,29 @@
-import { schema } from "./schema.js";
+import { schema } from "./schema.js"
+import { readFile, writeFile } from 'node:fs/promises'
+
+const dbPath =  new URL("./db.json", import.meta.url)
 export class Database {
     #database = {};
+
+    constructor(){
+        readFile(dbPath, 'utf8').then((data) => {
+            const dataParsed = JSON.parse(data);
+            this.#database = dataParsed
+        }).catch(() => {
+            this.#persist
+        })
+    }
+
+    #persist(){
+        writeFile(dbPath, JSON.stringify(this.#database))
+    }   
 
     read(tableName){
         const data = this.#database[tableName] ?? [];
 
         return data
     }
+    
     create(tableName, data){
         const structureSchema = this.#structureSchema(tableName, data)
         const databaseMock = this.#database[tableName]
@@ -17,8 +34,9 @@ export class Database {
             databaseMock.push(structureSchema)
         }
 
+        this.#persist()
     }
-    update(tableName,id, data){
+    update(tableName, id, data){
 
     }
     delete(tableName, id){

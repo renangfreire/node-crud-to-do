@@ -9,7 +9,7 @@ const server = http.createServer(async (req, res) => {
     await convertToJSON(req, res)
 
     const route = routes.find(route => {
-        return route.path === url && route.method === method
+        return route.method === method && route.path.test(url)
     })
 
     try {

@@ -1,5 +1,6 @@
 export const schema = {
     tasks: {
+        id: "string",
         title: "string",
         description: "string",
         completed_at: "string",
