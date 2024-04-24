@@ -9,7 +9,9 @@ export const routes = [
         method: "GET",
         path: buildRoutePath("/tasks"),
         handler: (req, res) => {
-            const tasks = database.read("tasks")
+            const filterQueries = req.query
+            const tasks = database.read("tasks", filterQueries)
+            
             
             return res.writeHead(200).end(JSON.stringify(tasks));
         }
@@ -21,11 +23,11 @@ export const routes = [
             const now = new Date().toISOString()
             const task = req.body
             
-            // database.create("tasks", {
-            //     ...task,
-            //     id: randomUUID(),
-            //     created_at: now
-            // })
+            database.create("tasks", {
+                ...task,
+                id: randomUUID(),
+                created_at: now
+            })
 
             return res.writeHead(201).end()
         }
@@ -61,5 +63,27 @@ export const routes = [
 
             return res.writeHead(204).end()
         }
-    }
+    },
+    {
+        method: "PATCH",
+        path: buildRoutePath("/tasks/:id/complete"),
+        handler: (req, res) => {
+            const now = new Date().toISOString();
+            const bodyData = req.body
+            const { id } = req.params
+
+            const [ databaseData ] = database.read("tasks", {id})
+
+            database.update("tasks", {
+                id,
+                data: {
+                    ...databaseData,
+                    ...bodyData,
+                    completed_at: now
+                }
+            })
+
+            return res.writeHead(204).end()
+        }
+    },
 ]

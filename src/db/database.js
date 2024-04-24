@@ -18,8 +18,21 @@ export class Database {
         writeFile(dbPath, JSON.stringify(this.#database))
     }   
 
-    read(tableName){
-        const data = this.#database[tableName] ?? [];
+    read(tableName, filterQueries) {
+        let data = this.#database[tableName] ?? [];
+
+        if(filterQueries){
+            const filterEntries = Object.entries(filterQueries)
+
+           data = data.reduce((arr, column) => {
+                 const similarToFilter = filterEntries.every(([key, value]) => column[key].includes(value))
+
+                 if(!similarToFilter) {return arr}
+
+                 arr.push(column)
+                 return arr
+            }, [])
+        }
 
         return data
     }
@@ -38,6 +51,8 @@ export class Database {
     }
     update(tableName, {id, data}){
         const structureSchema = this.#structureSchema(tableName, data)
+        structureSchema.id = id
+        
         const databaseMock = this.#database[tableName]
         
         if(!databaseMock) throw new Error("Not exist data in DB")
@@ -78,18 +93,15 @@ export class Database {
             throw new Error("Invalid sending data structure")
         }
 
-        return schemaEntries.reduce((obj,[key, keyType]) => {
-            if(key && !data[key]){
-                obj[key] = ""
+        return schemaEntries.reduce((obj,[key, properties]) => {
+            if(key && !data[key] && properties.notNull) throw new Error("Fields NOT NULL should be empty: " + key)
+            
+            obj[key] = data[key] ?? ""
 
-                return obj
+            if(typeof obj[key] !== properties.type){
+                throw new Error(`Invalid Data Type for ${key}, in schema type is ${properties.type}`)
             }
 
-            if(typeof data[key] !== keyType){
-                throw new Error("Invalid Data Type for " + key)
-            }
-
-            obj[key] = data[key]
             return obj
         }, {})
     }

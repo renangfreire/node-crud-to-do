@@ -1,10 +1,10 @@
 export const schema = {
     tasks: {
-        id: "string",
-        title: "string",
-        description: "string",
-        completed_at: "string",
-        created_at: "string",
-        updated_at: "string"
+        id: {type: "string", notNull: true},
+        title: {type: "string", notNull: true},
+        description: {type: "string", notNull: true},
+        completed_at: {type: "string"},
+        created_at: {type: "string", notNull: true},
+        updated_at: {type: "string"}
     }
 }
