@@ -50,8 +50,16 @@ export class Database {
 
         this.#persist()
     }
-    delete(tableName, id){
+    delete(tableName, { id }){
+        const databaseMock = this.#database[tableName]
 
+        const indexColumn = databaseMock.findIndex(column => column.id === id)
+
+        if(indexColumn === -1) throw new Error("Id not found in database")
+
+        databaseMock.splice(indexColumn, 1)
+
+        this.#persist()
     }
     #structureSchema(tableName, data){
         const schemaTable = schema[tableName]
