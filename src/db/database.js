@@ -36,8 +36,19 @@ export class Database {
 
         this.#persist()
     }
-    update(tableName, id, data){
+    update(tableName, {id, data}){
+        const structureSchema = this.#structureSchema(tableName, data)
+        const databaseMock = this.#database[tableName]
+        
+        if(!databaseMock) throw new Error("Not exist data in DB")
 
+        const indexColumn = databaseMock.findIndex(column => column.id === id)
+
+        if(indexColumn === -1) throw new Error("Id not found in database")
+        
+        databaseMock[indexColumn] = structureSchema
+
+        this.#persist()
     }
     delete(tableName, id){
 

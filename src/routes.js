@@ -21,21 +21,39 @@ export const routes = [
             const now = new Date().toISOString()
             const task = req.body
             
-            database.create("tasks", {
-                ...task,
-                id: randomUUID(),
-                created_at: now
-            })
-            
-            return res.writeHead(200).end()
+            // database.create("tasks", {
+            //     ...task,
+            //     id: randomUUID(),
+            //     created_at: now
+            // })
+
+            return res.writeHead(201).end()
         }
     },
     {
-        method: "UPDATE",
-        path: buildRoutePath("/tasks/:id")
+        method: "PUT",
+        path: buildRoutePath("/tasks/:id"),
+        handler: (req, res) => {
+            const now = new Date().toISOString();
+            const data = req.body
+            const { id } = req.params
+
+             database.update("tasks", {
+                id,
+                data: {
+                    ...data,
+                    updated_at: now
+                }
+            })
+
+            return res.writeHead(204).end()
+        }
     },
     {
         method: "DELETE",
-        path: buildRoutePath("/tasks/:id")
+        path: buildRoutePath("/tasks/:id"),
+        handler: (req, res) => {
+            return res.writeHead(204).end()
+        }
     }
 ]
