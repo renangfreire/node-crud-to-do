@@ -6,8 +6,11 @@ export async function convertToJSON(req, res){
 
     try {
         req.body = JSON.parse(Buffer.concat(buffers).toString())
-        return 
     } catch (error) {
         req.body = null
     }
+
+    res.setHeader('Content-Type', 'application/json')
+
+    return
 }

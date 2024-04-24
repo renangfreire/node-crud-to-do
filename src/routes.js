@@ -16,9 +16,10 @@ export const routes = [
         method: "POST",
         path: "/tasks",
         handler: (req, res) => {
+            const now = new Date().toISOString()
             const task = req.body
             
-            database.create("tasks", task)
+            database.create("tasks", {...task, created_at: now})
 
             return res.writeHead(200).end()
         }

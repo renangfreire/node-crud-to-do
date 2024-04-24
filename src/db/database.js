@@ -1,15 +1,22 @@
 import { schema } from "./schema.js";
 export class Database {
-    _database = {};
+    #database = {};
 
     read(tableName){
-        const data = this._database[tableName] ?? [];
+        const data = this.#database[tableName] ?? [];
 
         return data
     }
     create(tableName, data){
-        const structureSchema = this._structureSchema(tableName, data)
-        console.log(structureSchema)
+        const structureSchema = this.#structureSchema(tableName, data)
+        const databaseMock = this.#database[tableName]
+        
+        if(!databaseMock){
+            this.#database[tableName] = [ structureSchema ]
+        } else{
+            databaseMock.push(structureSchema)
+        }
+
     }
     update(tableName,id, data){
 
@@ -17,8 +24,22 @@ export class Database {
     delete(tableName, id){
 
     }
-    _structureSchema(tableName, data){
-        const schemaEntries = Object.entries(schema[tableName])
+    #structureSchema(tableName, data){
+        const schemaTable = schema[tableName]
+        const schemaEntries = Object.entries(schemaTable)
+        const dataKeys = Object.keys(data)
+
+        if(!schemaEntries){
+            throw new Error("Couldn't find tableName")
+        }
+
+        const allDataExistSchema = dataKeys.every(dataKey => {
+            return schemaTable.hasOwnProperty(dataKey)
+        })
+
+        if(!allDataExistSchema){
+            throw new Error("Invalid sending data structure")
+        }
 
         return schemaEntries.reduce((obj,[key, keyType]) => {
             if(key && !data[key]){
